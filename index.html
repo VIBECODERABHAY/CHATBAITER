@@ -1,0 +1,599 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ChatBaiter — Acoustic Encrypted Covert Chat</title>
+  <meta name="description" content="Acoustic-key encrypted chat application using 10-15 second audio samples for symmetric AES-256-GCM encryption and decryption.">
+  
+  <!-- Modern Typography from Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&family=Outfit:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+  
+  <!-- Stylesheet -->
+  <link rel="stylesheet" href="css/styles.css">
+
+  <!-- Firebase Modular SDKs (v10 compat/CDN for zero-bundler instant web support) -->
+  <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-database-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore-compat.js"></script>
+</head>
+<body class="theme-tactile">
+
+  <!-- TOP APP BAR -->
+  <header class="app-header">
+    <div class="header-brand">
+      <div class="brand-tactile-logo">
+        <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path>
+          <path d="M9 10h.01M12 10h.01M15 10h.01" stroke-width="3" stroke-linecap="round"></path>
+        </svg>
+      </div>
+      <div class="brand-text">
+        <span class="brand-title">ChatBaiter</span>
+        <span class="brand-tag">ACOUSTIC CIPHER v1.0</span>
+      </div>
+    </div>
+
+    <!-- Active Room & Audio Status (visible once entered room) -->
+    <div class="header-status-group" id="headerStatusGroup" style="display: none;">
+      <div class="status-pill room-pill" id="headerRoomPill" title="Current Chat Room">
+        <span class="pill-dot"></span>
+        <span class="pill-label">ROOM:</span>
+        <strong id="headerRoomCode">CB-XXXX</strong>
+      </div>
+      
+      <div class="status-pill key-pill" id="headerKeyPill" title="Audio Key Status">
+        <span class="key-indicator key-missing" id="headerKeyIndicator"></span>
+        <span id="headerKeyStatusText">NO AUDIO KEY</span>
+      </div>
+
+      <button class="tactile-btn-icon" id="btnAudioSlotTrigger" title="Audio Key Cassette Deck">
+        <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2">
+          <rect x="2" y="4" width="20" height="16" rx="2"></rect>
+          <circle cx="8" cy="12" r="2.5"></circle>
+          <circle cx="16" cy="12" r="2.5"></circle>
+          <path d="M6 18h12"></path>
+        </svg>
+      </button>
+
+      <button class="tactile-btn-icon" id="btnShareInvite" title="Share Invite Link">
+        <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2">
+          <circle cx="18" cy="5" r="3"></circle>
+          <circle cx="6" cy="12" r="3"></circle>
+          <circle cx="18" cy="19" r="3"></circle>
+          <line x1="8.59" y1="13.51" x2="15.42" y2="17.49"></line>
+          <line x1="15.41" y1="6.51" x2="8.59" y2="10.49"></line>
+        </svg>
+      </button>
+
+      <button class="tactile-btn-icon" id="btnSettingsTrigger" title="Firebase Connection Settings">
+        <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2">
+          <circle cx="12" cy="12" r="3"></circle>
+          <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path>
+        </svg>
+      </button>
+
+      <button class="tactile-btn-text" id="btnLeaveRoom">Exit Room</button>
+    </div>
+  </header>
+
+  <!-- MAIN CONTAINER -->
+  <main class="main-viewport">
+
+    <!-- ============================================== -->
+    <!-- VIEW 1: TACTILE ONBOARDING & SETUP CONSOLE -->
+    <!-- ============================================== -->
+    <section class="onboarding-container" id="onboardingView">
+      <div class="tactile-console">
+
+        <!-- Console Top Bar -->
+        <div class="console-header">
+          <div class="console-screws">
+            <span class="screw"></span>
+            <span class="screw"></span>
+          </div>
+          <h1 class="console-title">ACOUSTIC CIPHER DECK</h1>
+          <div class="console-screws">
+            <span class="screw"></span>
+            <span class="screw"></span>
+          </div>
+        </div>
+
+        <!-- ROLE SELECTION SWITCH -->
+        <div class="role-selector-container">
+          <label class="section-label">CHOOSE YOUR PROTOCOL</label>
+          <div class="tactile-switch-deck">
+            <button type="button" class="tactile-switch-btn active" id="btnRoleCreator" data-role="creator">
+              <span class="switch-indicator"></span>
+              <span class="switch-label">CREATOR-FRND</span>
+              <span class="switch-sub">Create New Encrypted Chat</span>
+            </button>
+            <button type="button" class="tactile-switch-btn" id="btnRoleFrnd" data-role="frnd">
+              <span class="switch-indicator"></span>
+              <span class="switch-label">FRND</span>
+              <span class="switch-sub">Join Existing Chat</span>
+            </button>
+          </div>
+        </div>
+
+        <!-- FORM CONTENT -->
+        <div class="console-form-body">
+          
+          <!-- NAME INPUT (Both Roles) -->
+          <div class="input-block">
+            <label for="inputUserName" class="section-label">
+              <span>YOUR NAME</span>
+              <span class="label-hint">Saved as cryptographic hash</span>
+            </label>
+            <div class="tactile-input-wrapper">
+              <input type="text" id="inputUserName" placeholder="e.g. Alex Morgan" autocomplete="off" maxlength="32">
+              <span class="input-adornment">
+                <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2">
+                  <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
+                  <circle cx="12" cy="7" r="4"></circle>
+                </svg>
+              </span>
+            </div>
+          </div>
+
+          <!-- ROOM CODE INPUT (Visible only for FRND role) -->
+          <div class="input-block" id="blockRoomCode" style="display: none;">
+            <label for="inputRoomCode" class="section-label">
+              <span>CHAT CODE</span>
+              <span class="label-hint">Provided by Creator-Frnd</span>
+            </label>
+            <div class="tactile-input-wrapper">
+              <input type="text" id="inputRoomCode" placeholder="CB-XXXX-XX" autocomplete="off" style="text-transform: uppercase;">
+              <span class="input-adornment">
+                <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2">
+                  <rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect>
+                  <path d="M7 11V7a5 5 0 0 1 10 0v4"></path>
+                </svg>
+              </span>
+            </div>
+          </div>
+
+          <!-- TACTILE CASSETTE AUDIO KEY DECK -->
+          <div class="audio-deck-block">
+            <div class="deck-title-row">
+              <label class="section-label">
+                <span>10–15s AUDIO KEY CHAMBER</span>
+                <span class="badge-recommended" id="audioMandatoryTag">REQUIRED FOR CREATOR</span>
+              </label>
+              <span class="deck-status" id="deckStatusTag">TAPE EMPTY</span>
+            </div>
+
+            <!-- Skeuomorphic Cassette Tape Unit -->
+            <div class="cassette-unit" id="cassetteUnit">
+              <div class="cassette-top-edge">
+                <span class="cassette-screws">✦</span>
+                <span class="cassette-label-text">CHATBAITER C-15 CHROME</span>
+                <span class="cassette-screws">✦</span>
+              </div>
+              
+              <div class="cassette-window">
+                <!-- Spool Left -->
+                <div class="cassette-spool left-spool" id="leftSpool">
+                  <div class="spool-teeth"></div>
+                </div>
+                <!-- Magnetic Tape Waveform Visualizer -->
+                <div class="tape-center-canvas">
+                  <canvas id="cassetteCanvas" width="160" height="42"></canvas>
+                  <div class="tape-bridge"></div>
+                </div>
+                <!-- Spool Right -->
+                <div class="cassette-spool right-spool" id="rightSpool">
+                  <div class="spool-teeth"></div>
+                </div>
+              </div>
+
+              <!-- Cassette Bottom Info -->
+              <div class="cassette-info-strip">
+                <span class="rec-led" id="recLed"></span>
+                <span class="tape-timer" id="tapeTimer">00:00.0</span>
+                <span class="tape-hash" id="tapeHash">HASH: ----------------</span>
+              </div>
+            </div>
+
+            <!-- Audio Actions Deck -->
+            <div class="audio-controls-row">
+              <!-- Hidden File Input -->
+              <input type="file" id="audioFileInput" accept="audio/*" style="display: none;">
+              
+              <!-- Upload Button -->
+              <button type="button" class="tactile-btn-pill" id="btnUploadAudio">
+                <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2">
+                  <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+                  <polyline points="17 8 12 3 7 8"></polyline>
+                  <line x1="12" y1="3" x2="12" y2="15"></line>
+                </svg>
+                <span>Upload 10–15s Audio</span>
+              </button>
+
+              <!-- Record Mic Button -->
+              <button type="button" class="tactile-btn-pill btn-rec" id="btnRecordAudio">
+                <span class="rec-circle-icon"></span>
+                <span id="recordBtnText">Record Mic (15s)</span>
+              </button>
+
+              <!-- Built-in Synth Generator -->
+              <button type="button" class="tactile-btn-pill" id="btnSynthAudio" title="Synthesize a unique 12s ambient harmonic sound key">
+                <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2">
+                  <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon>
+                  <path d="M15.54 8.46a5 5 0 0 1 0 7.07"></path>
+                  <path d="M19.07 4.93a10 10 0 0 1 0 14.14"></path>
+                </svg>
+                <span>Generate Sample Key</span>
+              </button>
+
+              <!-- Play/Preview Loaded Key -->
+              <button type="button" class="tactile-btn-pill" id="btnPlayAudio" style="display: none;">
+                <svg viewBox="0 0 24 24" width="16" height="16" fill="currentColor">
+                  <polygon points="5 3 19 12 5 21 5 3"></polygon>
+                </svg>
+                <span id="playAudioLabel">Play Key</span>
+              </button>
+
+              <!-- Download Audio Key Button -->
+              <button type="button" class="tactile-btn-pill btn-highlight" id="btnDownloadAudio" style="display: none;" title="Download this 10-15s audio key file to share with your friend">
+                <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2">
+                  <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+                  <polyline points="7 10 12 15 17 10"></polyline>
+                  <line x1="12" y1="15" x2="12" y2="3"></line>
+                </svg>
+                <span id="downloadAudioLabel">Download Key (.wav)</span>
+              </button>
+            </div>
+
+            <!-- Drag & Drop Overlay / Helper -->
+            <div class="audio-dropzone" id="audioDropZone">
+              <span>Drop any 10–15s audio file here (.mp3, .wav, .ogg, .m4a)</span>
+            </div>
+          </div>
+
+          <!-- LAUNCH ACTIONS -->
+          <div class="console-actions">
+            <button type="button" class="tactile-btn-primary" id="btnSubmitConsole">
+              <span class="btn-glow"></span>
+              <span id="btnSubmitConsoleLabel">INITIALIZE ENCRYPTED CHAMBER</span>
+              <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2">
+                <line x1="5" y1="12" x2="19" y2="12"></line>
+                <polyline points="12 5 19 12 12 19"></polyline>
+              </svg>
+            </button>
+
+            <!-- Option for FRND to join without audio key -->
+            <button type="button" class="tactile-btn-secondary" id="btnJoinWithoutAudio" style="display: none;">
+              <span>Join Without Audio Key (View Scrambled Text)</span>
+            </button>
+          </div>
+
+        </div> <!-- /.console-form-body -->
+
+        <!-- Console Footer Screws -->
+        <div class="console-footer">
+          <span class="screw"></span>
+          <span class="console-serial">AUTHENTICATED HARDWARE SYMMETRIC MODEL 256-GCM</span>
+          <span class="screw"></span>
+        </div>
+
+      </div>
+    </section>
+
+    <!-- ============================================== -->
+    <!-- VIEW 2: CHAT CONSOLE (Classified Room) -->
+    <!-- ============================================== -->
+    <section class="chat-viewport" id="chatView" style="display: none;">
+      
+      <!-- SUB-HEADER / CASSETTE TAPE DOCK (Expandable / Minimizable) -->
+      <div class="tape-dock" id="tapeDock">
+        <div class="dock-content">
+          <div class="dock-badge-group">
+            <div class="metallic-code-badge" id="chatRoomCodeBadge" title="Click to copy Chat Code">
+              <span class="badge-prefix">CODE</span>
+              <strong id="badgeRoomCodeDisplay">CB-XXXX-XX</strong>
+              <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2">
+                <rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
+                <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
+              </svg>
+            </div>
+            
+            <div class="invite-pill" id="btnCopyInviteLink" title="Click to copy Invite URL">
+              <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path>
+                <path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path>
+              </svg>
+              <span>COPY INVITE LINK</span>
+            </div>
+          </div>
+
+          <!-- Key insertion slot directly in chat -->
+          <div class="dock-key-slot" id="dockKeySlot">
+            <div class="key-slot-status">
+              <span class="slot-led" id="slotLed"></span>
+              <div class="slot-text">
+                <strong id="slotStatusHeadline">AUDIO KEY ACTIVE</strong>
+                <span id="slotStatusSub">Audio Hash: 0x8F3A... • 12.4s</span>
+              </div>
+            </div>
+            <div class="slot-actions">
+              <button class="tactile-btn-micro" id="btnDockDownloadKey" style="display: none;" title="Download active audio key file">Download Key (.wav)</button>
+              <button class="tactile-btn-micro" id="btnDockUploadKey">Change Audio Key</button>
+              <button class="tactile-btn-micro btn-danger" id="btnDockEjectKey">Eject Key (Scramble)</button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- MAIN CHAT STREAM -->
+      <div class="messages-deck" id="messagesDeck">
+        
+        <!-- Welcome / Security Notice Bubble -->
+        <div class="chat-notice">
+          <div class="notice-icon">🛡️</div>
+          <div class="notice-content">
+            <h4>ACOUSTIC SYMMETRIC CIPHER ENGAGED</h4>
+            <p>Every message transmitted through this terminal is encrypted with AES-256-GCM. Decryption strictly requires the exact matching 10–15 second audio key file.</p>
+          </div>
+        </div>
+
+        <!-- Chat messages will be dynamically injected here -->
+        <div class="messages-list" id="messagesList"></div>
+      </div>
+
+      <!-- CHAT COMPOSER INPUT DECK -->
+      <div class="composer-deck">
+        <form class="composer-form" id="composerForm">
+          
+          <div class="composer-input-row">
+            <div class="tactile-textarea-wrapper">
+              <input type="text" id="inputChatMessage" placeholder="Type confidential message..." autocomplete="off">
+            </div>
+
+            <!-- Send Button -->
+            <button type="submit" class="tactile-send-btn" id="btnSendMessage" title="Send Encrypted Message">
+              <span class="btn-send-label">TRANSMIT</span>
+              <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2">
+                <line x1="22" y1="2" x2="11" y2="13"></line>
+                <polygon points="22 2 15 22 11 13 2 9 22 2"></polygon>
+              </svg>
+            </button>
+          </div>
+
+          <div class="composer-toolbar">
+            <div class="toolbar-left">
+              <span class="cipher-badge" id="composerCipherBadge">
+                <span class="cipher-dot"></span>
+                <span>AES-256-GCM • Ready</span>
+              </span>
+            </div>
+            <div class="toolbar-right">
+              <span class="helper-shortcut">Press <strong>Enter</strong> to transmit</span>
+            </div>
+          </div>
+
+        </form>
+      </div>
+
+    </section>
+
+  </main>
+
+  <!-- ============================================== -->
+  <!-- MODAL: AUDIO KEY SELECTOR (3 TACTILE OPTIONS) -->
+  <!-- ============================================== -->
+  <div class="tactile-modal-backdrop" id="audioKeyModal" style="display: none;">
+    <div class="tactile-modal modal-audio-deck">
+      <div class="modal-header">
+        <div class="modal-header-titles">
+          <h3 class="modal-title">ACOUSTIC KEY VAULT</h3>
+          <span class="modal-sub">SELECT OR REPLACE 10–15s ENCRYPTION KEY</span>
+        </div>
+        <button class="tactile-btn-icon" id="btnCloseAudioKeyModal">✕</button>
+      </div>
+
+      <div class="modal-body">
+        
+        <!-- 3 TACTILE TABS -->
+        <div class="key-option-tabs">
+          <button type="button" class="key-tab-btn active" id="tabOptRecord" data-tab="record">
+            <span class="tab-icon">🎙️</span>
+            <span class="tab-title">1. RECORD</span>
+            <span class="tab-sub">10–15s Mic Clip</span>
+          </button>
+          <button type="button" class="key-tab-btn" id="tabOptUpload" data-tab="upload">
+            <span class="tab-icon">📁</span>
+            <span class="tab-title">2. UPLOAD</span>
+            <span class="tab-sub">From Disk</span>
+          </button>
+          <button type="button" class="key-tab-btn" id="tabOptMyInstants" data-tab="myinstants">
+            <span class="tab-icon">🔊</span>
+            <span class="tab-title">3. MYINSTANTS</span>
+            <span class="tab-sub">Soundboard & Web</span>
+          </button>
+        </div>
+
+        <!-- TAB CONTENT 1: RECORD -->
+        <div class="key-tab-panel" id="panelOptRecord">
+          <div class="tab-panel-inner">
+            <p class="tab-instructions">
+              Speak or record any 10–15 second sound sample. It will be converted into a cryptographic 256-bit AES-GCM key and downloaded as a shareable <code>.wav</code> file.
+            </p>
+
+            <div class="modal-rec-chamber">
+              <div class="modal-rec-visualizer">
+                <span class="modal-rec-timer" id="modalRecTimer">00:00.0</span>
+                <span class="modal-rec-status" id="modalRecStatus">READY TO RECORD</span>
+              </div>
+              <button type="button" class="tactile-btn-primary btn-modal-rec" id="btnModalRecord">
+                <span class="rec-dot-pulse"></span>
+                <span id="modalRecordLabel">Start 15s Recording</span>
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <!-- TAB CONTENT 2: UPLOAD -->
+        <div class="key-tab-panel" id="panelOptUpload" style="display: none;">
+          <div class="tab-panel-inner">
+            <p class="tab-instructions">
+              Upload any existing 10–15 second audio file (<code>.wav</code>, <code>.mp3</code>, <code>.ogg</code>, <code>.m4a</code>) from your computer.
+            </p>
+
+            <div class="modal-dropzone" id="modalAudioDropZone">
+              <div class="dropzone-icon">
+                <svg viewBox="0 0 24 24" width="36" height="36" fill="none" stroke="currentColor" stroke-width="2">
+                  <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+                  <polyline points="17 8 12 3 7 8"></polyline>
+                  <line x1="12" y1="3" x2="12" y2="15"></line>
+                </svg>
+              </div>
+              <h4>DRAG & DROP AUDIO KEY HERE</h4>
+              <p>or click to browse your folders</p>
+              <button type="button" class="tactile-btn-pill" id="btnModalBrowseAudio">Browse Files</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- TAB CONTENT 3: MYINSTANTS -->
+        <div class="key-tab-panel" id="panelOptMyInstants" style="display: none;">
+          <div class="tab-panel-inner">
+            <div class="myinstants-banner">
+              <div class="myinstants-info">
+                <strong>MyInstants Soundboard Integration</strong>
+                <p>Use any meme, sound effect, or viral audio clip from MyInstants as your secret encryption key!</p>
+              </div>
+              <a href="https://www.myinstants.com/en/index/in/" target="_blank" rel="noopener noreferrer" class="tactile-btn-pill myinstants-ext-btn">
+                <span>Visit MyInstants (India)</span>
+                <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2">
+                  <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"></path>
+                  <polyline points="15 3 21 3 21 9"></polyline>
+                  <line x1="10" y1="14" x2="21" y2="3"></line>
+                </svg>
+              </a>
+            </div>
+
+            <!-- Instant Soundboard Preset Grid -->
+            <label class="section-label" style="margin-top: 14px;">POPULAR INSTANTS KEYS (CLICK TO LOAD)</label>
+            <div class="instants-preset-grid">
+              <button type="button" class="tactile-instant-card" data-sound="bruh">
+                <span class="instant-btn-circle">🔴</span>
+                <div class="instant-meta">
+                  <strong>Bruh Sound Effect</strong>
+                  <span>2.4s • Meme Key #1</span>
+                </div>
+              </button>
+
+              <button type="button" class="tactile-instant-card" data-sound="fbi">
+                <span class="instant-btn-circle">🔵</span>
+                <div class="instant-meta">
+                  <strong>FBI Open Up!</strong>
+                  <span>3.1s • Meme Key #2</span>
+                </div>
+              </button>
+
+              <button type="button" class="tactile-instant-card" data-sound="vineboom">
+                <span class="instant-btn-circle">🟠</span>
+                <div class="instant-meta">
+                  <strong>Vine Boom Bass</strong>
+                  <span>1.8s • Meme Key #3</span>
+                </div>
+              </button>
+
+              <button type="button" class="tactile-instant-card" data-sound="discord">
+                <span class="instant-btn-circle">🟣</span>
+                <div class="instant-meta">
+                  <strong>Discord Call Chime</strong>
+                  <span>4.2s • Meme Key #4</span>
+                </div>
+              </button>
+
+              <button type="button" class="tactile-instant-card" data-sound="synthchord">
+                <span class="instant-btn-circle">🟢</span>
+                <div class="instant-meta">
+                  <strong>Cyber Synth Loop</strong>
+                  <span>12.0s • Acoustic Key #5</span>
+                </div>
+              </button>
+
+              <button type="button" class="tactile-instant-card" data-sound="metalpipe">
+                <span class="instant-btn-circle">⚪</span>
+                <div class="instant-meta">
+                  <strong>Metal Pipe Falling</strong>
+                  <span>2.6s • Meme Key #6</span>
+                </div>
+              </button>
+            </div>
+
+            <!-- Custom URL Input -->
+            <div class="instants-url-block">
+              <label class="section-label">OR PASTE MYINSTANTS MP3 URL</label>
+              <div class="tactile-input-wrapper">
+                <input type="url" id="inputMyInstantsUrl" placeholder="https://www.myinstants.com/media/sounds/...mp3">
+                <button type="button" class="tactile-btn-micro" id="btnLoadMyInstantsUrl" style="margin-right: 8px;">Load Sound</button>
+              </div>
+              <span class="label-hint" style="margin-top: 4px; display: block;">
+                Tip: On MyInstants, you can also download the MP3 and drag-and-drop it into the <strong>Upload</strong> tab!
+              </span>
+            </div>
+
+          </div>
+        </div>
+
+      </div>
+
+      <div class="modal-footer">
+        <button class="tactile-btn-pill" id="btnCancelAudioKeyModal">Close</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ============================================== -->
+  <!-- MODAL: FIREBASE / SYNC SETTINGS -->
+  <!-- ============================================== -->
+  <div class="tactile-modal-backdrop" id="settingsModal" style="display: none;">
+    <div class="tactile-modal">
+      <div class="modal-header">
+        <h3 class="modal-title">TERMINAL DATA BACKEND</h3>
+        <button class="tactile-btn-icon" id="btnCloseSettings">✕</button>
+      </div>
+      <div class="modal-body">
+        <p class="modal-desc">
+          ChatBaiter features a <strong>Zero-Config Real-Time Engine</strong>: multi-window local testing works automatically out of the box! To connect across different devices on the internet, paste your standard Firebase configuration below.
+        </p>
+
+        <div class="input-block">
+          <label class="section-label">FIREBASE CONFIGURATION (JSON or Variables)</label>
+          <textarea id="inputFirebaseConfig" rows="7" placeholder='{
+  "apiKey": "AIzaSy...",
+  "authDomain": "your-app.firebaseapp.com",
+  "databaseURL": "https://your-app-default-rtdb.firebaseio.com",
+  "projectId": "your-app",
+  "storageBucket": "your-app.appspot.com"
+}'></textarea>
+        </div>
+
+        <div class="settings-status-box" id="firebaseStatusBox">
+          <span class="status-indicator-dot online"></span>
+          <span id="firebaseStatusText">Active Mode: High-Speed Local & Tab P2P Sync</span>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="tactile-btn-pill" id="btnResetFirebaseConfig">Reset to Local Sync</button>
+        <button class="tactile-btn-primary" id="btnSaveFirebaseConfig">Apply Configuration</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- TOAST NOTIFICATION CONTAINER -->
+  <div class="toast-container" id="toastContainer"></div>
+
+  <!-- APPLICATION SCRIPTS -->
+  <script src="js/crypto.js"></script>
+  <script src="js/audio.js"></script>
+  <script src="js/firebase-sync.js"></script>
+  <script src="js/app.js"></script>
+</body>
+</html>

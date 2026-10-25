@@ -16,8 +16,46 @@ const MIME_TYPES = {
   '.ico': 'image/x-icon'
 };
 
+// Parse local .env file if it exists
+function loadLocalEnv() {
+  const envPath = path.join(__dirname, '.env');
+  if (fs.existsSync(envPath)) {
+    const lines = fs.readFileSync(envPath, 'utf8').split('\n');
+    lines.forEach(line => {
+      const trimmed = line.trim();
+      if (trimmed && !trimmed.startsWith('#')) {
+        const idx = trimmed.indexOf('=');
+        if (idx > -1) {
+          const key = trimmed.substring(0, idx).trim();
+          const val = trimmed.substring(idx + 1).trim();
+          if (!process.env[key]) {
+            process.env[key] = val;
+          }
+        }
+      }
+    });
+  }
+}
+loadLocalEnv();
+
 const server = http.createServer((req, res) => {
   let reqPath = req.url.split('?')[0];
+
+  // API endpoint for Vercel & local env config
+  if (reqPath === '/api/config') {
+    const configHandler = require('./api/config');
+    res.status = (code) => {
+      res.statusCode = code;
+      return res;
+    };
+    res.json = (data) => {
+      res.setHeader('Content-Type', 'application/json');
+      res.end(JSON.stringify(data));
+      return res;
+    };
+    return configHandler(req, res);
+  }
+
   if (reqPath === '/') reqPath = '/index.html';
   
   const filePath = path.join(__dirname, reqPath);

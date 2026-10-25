@@ -124,6 +124,10 @@
     ChatAudio.drawIdleWaveform();
     parseUrlParameters();
     updateUiForRole();
+
+    // Securely fetch environment config from Vercel / serverless environment
+    await ChatSync.fetchEnvConfig();
+    updateFirebaseStatusText();
   }
 
   /**
@@ -1022,9 +1026,13 @@
    * Firebase Settings Modal with Morph & Dissolve
    */
   function openSettingsModal() {
-    const saved = ChatSync.getSavedFirebaseConfig();
-    if (saved) {
-      el.inputFirebaseConfig.value = JSON.stringify(saved, null, 2);
+    const manualConfig = localStorage.getItem('cb_firebase_config');
+    if (manualConfig) {
+      el.inputFirebaseConfig.value = manualConfig;
+    } else if (ChatSync.isEnvConfigured()) {
+      el.inputFirebaseConfig.value = '// Configured securely via Vercel Environment Variables (Secured 🔒)\n// To override, enter custom JSON below or click Reset.';
+    } else {
+      el.inputFirebaseConfig.value = '';
     }
     updateFirebaseStatusText();
     el.settingsModal.style.display = 'flex';
@@ -1042,7 +1050,11 @@
 
   function updateFirebaseStatusText() {
     if (ChatSync.isFirebaseActive()) {
-      el.firebaseStatusText.textContent = 'Active Mode: Live Cloud Firestore Connected (chatbaiter)';
+      if (ChatSync.isEnvConfigured()) {
+        el.firebaseStatusText.textContent = 'Active Mode: Live Cloud Firestore Connected (Secured via Vercel Env 🔒)';
+      } else {
+        el.firebaseStatusText.textContent = 'Active Mode: Live Cloud Firestore Connected (Manual Config 🔒)';
+      }
     } else {
       el.firebaseStatusText.textContent = 'Active Mode: Local Multi-Window P2P Sync (Zero Config)';
     }

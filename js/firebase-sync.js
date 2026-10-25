@@ -8,17 +8,8 @@
 const ChatSync = (function () {
   'use strict';
 
-  // Default Firebase configuration provided for ChatBaiter
-  const DEFAULT_FIREBASE_CONFIG = {
-    apiKey: "AIzaSyBLjrgDGpKr512WB21gK0eVLtgYGcpXRTU",
-    authDomain: "chatbaiter.firebaseapp.com",
-    projectId: "chatbaiter",
-    storageBucket: "chatbaiter.firebasestorage.app",
-    messagingSenderId: "1098646721797",
-    appId: "1:1098646721797:web:644df2b5c873c4c9bb536c",
-    measurementId: "G-3DYWBT6XEY"
-  };
-
+  // Config is dynamically loaded from Vercel / local environment variables via /api/config
+  let envLoadedConfig = null;
   let firebaseApp = null;
   let firestoreDb = null;
   let rtdb = null;
@@ -29,13 +20,13 @@ const ChatSync = (function () {
   let storageKeyPrefix = 'cb_room_';
   let activeFirestoreUnsubscribe = null;
 
-  // Load custom Firebase config from localStorage if saved, or use default
+  // Load custom Firebase config from localStorage if saved, or use environment config
   function getSavedFirebaseConfig() {
     try {
       const raw = localStorage.getItem('cb_firebase_config');
-      return raw ? JSON.parse(raw) : DEFAULT_FIREBASE_CONFIG;
+      return raw ? JSON.parse(raw) : envLoadedConfig;
     } catch (e) {
-      return DEFAULT_FIREBASE_CONFIG;
+      return envLoadedConfig;
     }
   }
 
@@ -48,10 +39,33 @@ const ChatSync = (function () {
   }
 
   /**
+   * Fetch configuration securely from Vercel / serverless environment
+   */
+  async function fetchEnvConfig() {
+    try {
+      const res = await fetch('/api/config');
+      if (res.ok) {
+        const data = await res.json();
+        if (data.configured && data.config) {
+          envLoadedConfig = data.config;
+          const manual = localStorage.getItem('cb_firebase_config');
+          if (!manual) {
+            initFirebase(envLoadedConfig);
+          }
+          return envLoadedConfig;
+        }
+      }
+    } catch (e) {
+      // Local offline mode
+    }
+    return null;
+  }
+
+  /**
    * Initialize Firebase SDK (Supports Cloud Firestore or Realtime Database)
    */
   function initFirebase(config) {
-    const activeConfig = config || DEFAULT_FIREBASE_CONFIG;
+    const activeConfig = config || getSavedFirebaseConfig();
     if (!activeConfig || !activeConfig.apiKey || !activeConfig.projectId) {
       isFirebaseActive = false;
       return false;
@@ -297,12 +311,13 @@ const ChatSync = (function () {
     initFirebase,
     getSavedFirebaseConfig,
     saveFirebaseConfig,
+    fetchEnvConfig,
+    isEnvConfigured: () => Boolean(envLoadedConfig),
     isFirebaseActive: () => isFirebaseActive,
     createRoom,
     getRoom,
     sendMessage,
     subscribeRoom,
     unsubscribe,
-    DEFAULT_FIREBASE_CONFIG,
   };
 })();

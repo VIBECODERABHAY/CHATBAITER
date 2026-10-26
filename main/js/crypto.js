@@ -313,8 +313,55 @@ const ChatCrypto = (function () {
     return result;
   }
 
+  /**
+   * Opposite / Inverse of generateScrambledText:
+   * Reconstitute and reveal plain text with simulated cryptographic descramble sequence
+   */
+  function descrambleText(targetPlainText, onProgress, durationMs = 350) {
+    if (!targetPlainText) return Promise.resolve('');
+    return new Promise((resolve) => {
+      const chars = targetPlainText.split('');
+      const totalSteps = 6;
+      let step = 0;
+      const interval = setInterval(() => {
+        step++;
+        const currentProgress = step / totalSteps;
+        const rendered = chars
+          .map((c, idx) => {
+            if (idx / chars.length < currentProgress) return c;
+            return CIPHER_CHARS[Math.floor(Math.random() * CIPHER_CHARS.length)];
+          })
+          .join('');
+        if (onProgress) onProgress(rendered);
+        if (step >= totalSteps) {
+          clearInterval(interval);
+          if (onProgress) onProgress(targetPlainText);
+          resolve(targetPlainText);
+        }
+      }, durationMs / totalSteps);
+    });
+  }
+
+  /**
+   * Opposite / Inverse of deriveAudioKey:
+   * Securely zeroize and purge sensitive cryptographic key material from memory
+   */
+  function zeroizeKeyMemory(keyDataRef) {
+    if (!keyDataRef) return true;
+    try {
+      if (keyDataRef.cryptoKey) keyDataRef.cryptoKey = null;
+      if (keyDataRef.hexHash) keyDataRef.hexHash = null;
+      if (keyDataRef.shortHash) keyDataRef.shortHash = 'ZEROIZED';
+      keyDataRef.securityRating = 'PURGED';
+      return true;
+    } catch (e) {
+      return false;
+    }
+  }
+
   return {
     deriveAudioKey,
+    zeroizeKeyMemory,
     hashUsername,
     encryptMessage,
     decryptMessage,
@@ -323,6 +370,7 @@ const ChatCrypto = (function () {
     generateLockKeyfile,
     verifyLockKeyfile,
     generateScrambledText,
+    descrambleText,
   };
 })();
 

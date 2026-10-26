@@ -73,6 +73,7 @@
     lockfileStatusTitle: document.getElementById('lockfileStatusTitle'),
     lockfileDropTitle: document.getElementById('lockfileDropTitle'),
     lockfileDropSub: document.getElementById('lockfileDropSub'),
+    btnRemoveLockfile: document.getElementById('btnRemoveLockfile'),
 
     // Cassette Deck
     cassetteUnit: document.getElementById('cassetteUnit'),
@@ -106,11 +107,13 @@
     btnDockDownloadKey: document.getElementById('btnDockDownloadKey'),
     btnDockUploadKey: document.getElementById('btnDockUploadKey'),
     btnDockEjectKey: document.getElementById('btnDockEjectKey'),
+    btnDockPurgeMessages: document.getElementById('btnDockPurgeMessages'),
     messagesList: document.getElementById('messagesList'),
     messagesDeck: document.getElementById('messagesDeck'),
     composerForm: document.getElementById('composerForm'),
     inputChatMessage: document.getElementById('inputChatMessage'),
     btnComposerDualAi: document.getElementById('btnComposerDualAi'),
+    btnComposerSoloAi: document.getElementById('btnComposerSoloAi'),
     btnComposerDebate: document.getElementById('btnComposerDebate'),
 
     // Settings Modal (BYOB, Visitor Ledger, Hash Lock)
@@ -138,6 +141,7 @@
     btnSaveFirebaseConfig: document.getElementById('btnSaveFirebaseConfig'),
     visitorLedgerList: document.getElementById('visitorLedgerList'),
     visitorCountTag: document.getElementById('visitorCountTag'),
+    btnPurgeVisitorLedger: document.getElementById('btnPurgeVisitorLedger'),
     toggleLockChatWithHash: document.getElementById('toggleLockChatWithHash'),
     hashLockActiveBox: document.getElementById('hashLockActiveBox'),
     btnDownloadLockKeyfile: document.getElementById('btnDownloadLockKeyfile'),
@@ -151,6 +155,7 @@
     selectAiModel2: document.getElementById('selectAiModel2'),
     badgeModel1: document.getElementById('badgeModel1'),
     badgeModel2: document.getElementById('badgeModel2'),
+    btnSwapGladiators: document.getElementById('btnSwapGladiators'),
     tabColosseumDebate: document.getElementById('tabColosseumDebate'),
     tabColosseumVault: document.getElementById('tabColosseumVault'),
     panelColosseumDebate: document.getElementById('panelColosseumDebate'),
@@ -162,14 +167,18 @@
     debateStatusText: document.getElementById('debateStatusText'),
     btnStartDebate: document.getElementById('btnStartDebate'),
     btnStopDebate: document.getElementById('btnStopDebate'),
+    btnResetDebate: document.getElementById('btnResetDebate'),
     selectVaultProvider: document.getElementById('selectVaultProvider'),
     inputVaultApiKey: document.getElementById('inputVaultApiKey'),
     btnSaveVaultKey: document.getElementById('btnSaveVaultKey'),
+    btnDeleteVaultKey: document.getElementById('btnDeleteVaultKey'),
+    btnPurgeAllVaultKeys: document.getElementById('btnPurgeAllVaultKeys'),
     vaultKeyStatusText: document.getElementById('vaultKeyStatusText'),
 
     // Catastrophe Modal
     catastropheModal: document.getElementById('catastropheModal'),
     btnCloseCatastrophe: document.getElementById('btnCloseCatastrophe'),
+    btnRetryCatastrophe: document.getElementById('btnRetryCatastrophe'),
     catastropheMsg: document.getElementById('catastropheMsg'),
 
     // Audio Key Modal (3 Options: Record, Upload, MyInstants)
@@ -349,10 +358,13 @@
     el.btnDockEjectKey.addEventListener('click', handleEjectAudioKey);
     el.btnLeaveRoom.addEventListener('click', handleLeaveRoom);
 
-    // Dual-AI & Debate triggers in composer
+    // Dual-AI & Solo-AI & Debate triggers in composer
     if (el.btnComposerDualAi) el.btnComposerDualAi.addEventListener('click', handleComposerDualAiPrompt);
+    if (el.btnComposerSoloAi) el.btnComposerSoloAi.addEventListener('click', handleComposerSoloAiPrompt);
     if (el.btnComposerDebate) el.btnComposerDebate.addEventListener('click', openAiColosseumModal);
     if (el.btnToggleAiColosseum) el.btnToggleAiColosseum.addEventListener('click', openAiColosseumModal);
+    if (el.btnDockPurgeMessages) el.btnDockPurgeMessages.addEventListener('click', handleDockPurgeMessages);
+    if (el.btnRemoveLockfile) el.btnRemoveLockfile.addEventListener('click', handleRemoveLockfile);
 
     // Header Backend Pill
     if (el.btnHeaderBackendPill) {
@@ -365,6 +377,7 @@
     if (el.tabSettingsBackend) el.tabSettingsBackend.addEventListener('click', () => switchSettingsTab('backend'));
     if (el.tabSettingsVisitors) el.tabSettingsVisitors.addEventListener('click', () => switchSettingsTab('visitors'));
     if (el.tabSettingsHashLock) el.tabSettingsHashLock.addEventListener('click', () => switchSettingsTab('hashlock'));
+    if (el.btnPurgeVisitorLedger) el.btnPurgeVisitorLedger.addEventListener('click', handlePurgeVisitorLedger);
 
     if (el.toggleLockChatWithHash) el.toggleLockChatWithHash.addEventListener('change', handleToggleHashLock);
     if (el.btnDownloadLockKeyfile) el.btnDownloadLockKeyfile.addEventListener('click', handleDownloadLockKeyfile);
@@ -381,10 +394,14 @@
     if (el.tabColosseumVault) el.tabColosseumVault.addEventListener('click', () => switchColosseumTab('vault'));
     if (el.selectAiModel1) el.selectAiModel1.addEventListener('change', handleAiModel1Change);
     if (el.selectAiModel2) el.selectAiModel2.addEventListener('change', handleAiModel2Change);
+    if (el.btnSwapGladiators) el.btnSwapGladiators.addEventListener('click', handleSwapGladiators);
     if (el.selectVaultProvider) el.selectVaultProvider.addEventListener('change', updateVaultKeyStatus);
     if (el.btnSaveVaultKey) el.btnSaveVaultKey.addEventListener('click', handleSaveVaultKey);
+    if (el.btnDeleteVaultKey) el.btnDeleteVaultKey.addEventListener('click', handleDeleteVaultKey);
+    if (el.btnPurgeAllVaultKeys) el.btnPurgeAllVaultKeys.addEventListener('click', handlePurgeAllVaultKeys);
     if (el.btnStartDebate) el.btnStartDebate.addEventListener('click', handleLaunchDebate);
     if (el.btnStopDebate) el.btnStopDebate.addEventListener('click', handleStopDebate);
+    if (el.btnResetDebate) el.btnResetDebate.addEventListener('click', handleResetDebate);
 
     // Catastrophe Modal
     if (el.btnCloseCatastrophe) {
@@ -393,6 +410,7 @@
         el.catastropheModal.classList.remove('modal-active');
       });
     }
+    if (el.btnRetryCatastrophe) el.btnRetryCatastrophe.addEventListener('click', handleRetryCatastrophe);
 
     // Audio Key Modal (3 Options: Record, Upload, MyInstants)
     el.btnCloseAudioKeyModal.addEventListener('click', closeAudioKeyModal);
@@ -483,10 +501,42 @@
       el.lockfileDropZone.classList.add('verified-file');
       el.lockfileDropTitle.textContent = `Keyfile Staged: ${file.name}`;
       el.lockfileDropSub.textContent = `Ready to decrypt using loaded Audio Key (${(file.size / 1024).toFixed(1)} KB)`;
+      if (el.btnRemoveLockfile) el.btnRemoveLockfile.style.display = 'inline-block';
       showToast(`Keyfile ${file.name} staged for decryption verification!`, 'info');
     } catch (err) {
       showToast('Could not read keyfile: ' + err.message, 'error');
     }
+  }
+
+  /**
+   * Opposite / Inverse of uploading a lockfile:
+   * Remove, detach and unstage the uploaded .cblock file
+   */
+  function handleRemoveLockfile() {
+    state.uploadedLockfileContent = null;
+    state.uploadedLockfileName = '';
+    if (el.inputLockfile) el.inputLockfile.value = '';
+    if (el.lockfileDropZone) el.lockfileDropZone.classList.remove('verified-file');
+    if (el.lockfileDropTitle) el.lockfileDropTitle.textContent = 'Click to Browse or Drag .cblock Keyfile Here';
+    if (el.lockfileDropSub) el.lockfileDropSub.textContent = 'Mandatory: Will be decrypted and verified using your Audio Key';
+    if (el.btnRemoveLockfile) el.btnRemoveLockfile.style.display = 'none';
+    showToast('Removed and detached .cblock keyfile.', 'info');
+  }
+
+  /**
+   * Opposite / Emergency Recovery for Lockout Catastrophe Screen:
+   * Dismiss catastrophe screen and reset gate so friend can retry with another key/file
+   */
+  function handleRetryCatastrophe() {
+    if (el.catastropheModal) {
+      el.catastropheModal.style.display = 'none';
+      el.catastropheModal.classList.remove('modal-active');
+    }
+    handleRemoveLockfile();
+    if (el.blockLockfileUpload) {
+      el.blockLockfileUpload.scrollIntoView({ behavior: 'smooth' });
+    }
+    showToast('Authentication gate reset. Re-attach your keyfile or load the correct audio key.', 'info');
   }
 
   /**
@@ -1039,11 +1089,14 @@
    * Eject Audio Key
    */
   function handleEjectAudioKey() {
+    if (state.audioKeyData) {
+      ChatCrypto.zeroizeKeyMemory(state.audioKeyData);
+    }
     state.hasAudioKey = false;
     state.audioKeyData = null;
     updateChatHeaderKeyUi(false);
     reRenderAllMessages();
-    showToast('Audio key ejected. Terminal switched to Scrambled View.', 'info');
+    showToast('Audio key ejected & memory zeroized. Terminal switched to Scrambled View.', 'info');
   }
 
   function promptChangeAudioKey() {
@@ -1752,6 +1805,7 @@
       onDebateFinish: (res) => {
         el.btnStartDebate.style.display = 'inline-block';
         el.btnStopDebate.style.display = 'none';
+        if (el.btnResetDebate) el.btnResetDebate.style.display = 'inline-block';
         el.debateStatusBanner.style.display = 'none';
         if (res.completed) {
           showToast('Colosseum AI Debate concluded successfully! ⚔️', 'success');
@@ -1766,6 +1820,7 @@
     ChatAI.stopDebate();
     el.btnStartDebate.style.display = 'inline-block';
     el.btnStopDebate.style.display = 'none';
+    if (el.btnResetDebate) el.btnResetDebate.style.display = 'inline-block';
     el.debateStatusBanner.style.display = 'none';
     showToast('Debate stopped by user.', 'info');
   }
@@ -1823,6 +1878,161 @@
     } catch (err) {
       console.error('Failed to send encrypted AI message:', err);
     }
+  }
+
+  /**
+   * Swap Gladiators (Vice-Versa): Invert Model 1 and Model 2 roles
+   */
+  function handleSwapGladiators() {
+    const pair = ChatAI.swapGladiators();
+    if (el.selectAiModel1 && el.selectAiModel2) {
+      el.selectAiModel1.value = pair.model1.id;
+      el.selectAiModel2.value = pair.model2.id;
+      handleAiModel1Change();
+      handleAiModel2Change();
+    }
+    showToast(`Gladiators Inverted: ${pair.model1.badge} (Proposition) ⇄ ${pair.model2.badge} (Opposition)`, 'success');
+  }
+
+  /**
+   * Opposite / Inverse of saveEncryptedApiKey:
+   * Remove and wipe key for active provider
+   */
+  async function handleDeleteVaultKey() {
+    const provider = el.selectVaultProvider.value;
+    await ChatAI.removeEncryptedApiKey(provider);
+    updateVaultKeyStatus();
+    showToast(`Removed and purged custom API key for ${provider.toUpperCase()}.`, 'info');
+  }
+
+  /**
+   * Opposite / Purge all keys:
+   * Wipe all custom API keys across all providers
+   */
+  async function handlePurgeAllVaultKeys() {
+    const confirmed = window.confirm('Wipe all saved API keys across all providers?');
+    if (!confirmed) return;
+    await ChatAI.purgeAllApiKeys();
+    updateVaultKeyStatus();
+    showToast('All custom API keys purged from storage across all providers!', 'info');
+  }
+
+  /**
+   * Opposite / Reset function for debate arena
+   */
+  function handleResetDebate() {
+    ChatAI.resetDebateArena();
+    if (el.btnStartDebate) el.btnStartDebate.style.display = 'inline-block';
+    if (el.btnStopDebate) el.btnStopDebate.style.display = 'none';
+    if (el.btnResetDebate) el.btnResetDebate.style.display = 'none';
+    if (el.debateStatusBanner) el.debateStatusBanner.style.display = 'none';
+    showToast('AI Colosseum Arena reset and cleared.', 'info');
+  }
+
+  /**
+   * Opposite of Dual-AI Prompting:
+   * Solo-AI Prompting (Query only Gladiator 1)
+   */
+  async function handleComposerSoloAiPrompt() {
+    const text = el.inputChatMessage.value.trim();
+    if (!text) {
+      showToast('Type a prompt in the message input first!', 'info');
+      el.inputChatMessage.focus();
+      return;
+    }
+
+    if (!state.hasAudioKey || !state.audioKeyData) {
+      showToast('You must load an Audio Key first to encrypt and communicate with AIs!', 'error');
+      promptChangeAudioKey();
+      return;
+    }
+
+    el.inputChatMessage.value = '';
+
+    try {
+      const userEncrypted = await ChatCrypto.encryptMessage(text, state.audioKeyData.cryptoKey);
+      await ChatSync.sendMessage(state.chatCode, {
+        senderName: state.userName,
+        senderHash: state.userHash,
+        encrypted: userEncrypted,
+      });
+    } catch (e) {}
+
+    const selected = ChatAI.getSelectedModels();
+    showToast(`Solo AI Prompting: Querying ${selected.model1.name}...`, 'info');
+
+    try {
+      const soloResult = await ChatAI.querySoloAi(selected.model1.id, text, state.audioKeyData.cryptoKey);
+      await handleSendAiMessage(soloResult.model.name, soloResult.text, soloResult.model.color, 'SOLO RESPONSE');
+    } catch (err) {
+      console.error(err);
+      showToast('Solo AI error: ' + err.message, 'error');
+    }
+  }
+
+  /**
+   * Opposite / Inverse of sending messages:
+   * "Burn Chamber" — Purges all messages in the room (Creator Only)
+   */
+  async function handleDockPurgeMessages() {
+    if (state.role !== 'creator') {
+      showToast('Only the room creator can burn and purge chamber messages!', 'error');
+      return;
+    }
+    const confirmed = window.confirm('⚠️ BURN CHAMBER: Are you sure you want to permanently erase ALL messages in this room for everyone?');
+    if (!confirmed) return;
+
+    showToast('Incinerating chamber messages...', 'info');
+    await ChatSync.purgeRoomMessages(state.chatCode);
+    state.allMessages = [];
+    if (el.messagesList) el.messagesList.innerHTML = '';
+    showToast('Chamber purged! All messages incinerated.', 'success');
+  }
+
+  /**
+   * Opposite / Purge function for Visitor Presence Ledger:
+   * Clears the visitor audit log for zero-trace privacy (Creator Only)
+   */
+  async function handlePurgeVisitorLedger() {
+    if (state.role !== 'creator') {
+      showToast('Only the room creator can purge the visitor ledger!', 'error');
+      return;
+    }
+    const confirmed = window.confirm('Clear all recorded visitor entries for this room (Zero-Trace Mode)?');
+    if (!confirmed) return;
+
+    await ChatSync.clearVisitorLedger(state.chatCode);
+    if (el.visitorLedgerList) {
+      el.visitorLedgerList.innerHTML = `
+        <div class="empty-ledger-state">
+          <span>Visitor audit log purged. Zero trace active.</span>
+        </div>
+      `;
+    }
+    if (el.visitorCountTag) el.visitorCountTag.textContent = '0 Visitors';
+    showToast('Visitor ledger purged. Zero-trace mode active.', 'success');
+  }
+
+  /**
+   * Opposite / Inverse of entering a room:
+   * Leave room, log departure, wipe active keys from memory, and return to onboarding console
+   */
+  async function handleLeaveRoom() {
+    if (state.chatCode && state.userName) {
+      await ChatSync.logVisitorDeparture(state.chatCode, state.userName);
+    }
+    ChatSync.unsubscribe();
+    if (state.audioKeyData) {
+      ChatCrypto.zeroizeKeyMemory(state.audioKeyData);
+    }
+    state.chatCode = '';
+    state.allMessages = [];
+    state.hasAudioKey = false;
+    state.audioKeyData = null;
+    if (el.messagesList) el.messagesList.innerHTML = '';
+    if (el.chatView) el.chatView.style.display = 'none';
+    if (el.onboardingView) el.onboardingView.style.display = 'block';
+    showToast('Departed chamber. Session cleared & key memory zeroized.', 'info');
   }
 
   // Launch on DOM ready

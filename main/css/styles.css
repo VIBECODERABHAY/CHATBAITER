@@ -2554,3 +2554,63 @@ body.theme-tactile {
   background: linear-gradient(135deg, #dc2626, #991b1b);
   box-shadow: 0 0 15px rgba(239, 68, 68, 0.8);
 }
+
+/* Colosseum VS Wrapper & Invert Roles Button */
+.colosseum-vs-wrapper {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+}
+
+.btn-swap-gladiators {
+  background: rgba(6, 182, 212, 0.12);
+  border: 1px solid rgba(6, 182, 212, 0.35);
+  color: var(--accent-cyan);
+  font-size: 0.68rem;
+  letter-spacing: 0.05em;
+  padding: 4px 10px;
+  border-radius: var(--radius-pill);
+  transition: all 0.25s ease;
+  cursor: pointer;
+}
+
+.btn-swap-gladiators:hover {
+  background: rgba(6, 182, 212, 0.25);
+  border-color: var(--accent-cyan);
+  box-shadow: 0 0 10px rgba(6, 182, 212, 0.4);
+  transform: scale(1.05);
+}
+
+.btn-solo-ai-pill {
+  background: rgba(168, 85, 247, 0.15);
+  border: 1px solid rgba(168, 85, 247, 0.35);
+  color: #c084fc;
+  font-size: 0.72rem;
+  padding: 5px 12px;
+  border-radius: var(--radius-pill);
+  transition: all 0.2s ease;
+  cursor: pointer;
+}
+
+.btn-solo-ai-pill:hover {
+  background: rgba(168, 85, 247, 0.3);
+  border-color: #d8b4fe;
+  box-shadow: 0 0 10px rgba(168, 85, 247, 0.4);
+  transform: translateY(-1px);
+}
+
+.btn-catastrophe-retry {
+  background: rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(255, 255, 255, 0.25);
+  color: var(--text-main);
+  cursor: pointer;
+  transition: all 0.25s ease;
+}
+
+.btn-catastrophe-retry:hover {
+  background: rgba(255, 255, 255, 0.18);
+  border-color: rgba(255, 255, 255, 0.5);
+  box-shadow: 0 0 12px rgba(255, 255, 255, 0.2);
+}

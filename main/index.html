@@ -195,6 +195,11 @@
                 </div>
               </div>
             </div>
+            <div style="text-align: right; margin-top: 6px;">
+              <button type="button" class="tactile-btn-micro btn-danger" id="btnRemoveLockfile" style="display: none;">
+                ✕ Remove / Detach .cblock Keyfile
+              </button>
+            </div>
           </div>
 
           <!-- TACTILE CASSETTE AUDIO KEY DECK -->
@@ -364,6 +369,7 @@
               <button class="tactile-btn-micro" id="btnDockDownloadKey" style="display: none;" title="Download active audio key file">Download Key (.wav)</button>
               <button class="tactile-btn-micro" id="btnDockUploadKey">Change Audio Key</button>
               <button class="tactile-btn-micro btn-danger" id="btnDockEjectKey">Eject Key (Scramble)</button>
+              <button class="tactile-btn-micro btn-danger" id="btnDockPurgeMessages" title="Burn and purge all room messages from memory (Creator only)">🔥 Burn Chamber</button>
             </div>
           </div>
         </div>
@@ -412,6 +418,9 @@
               </span>
               <button type="button" class="tactile-btn-micro btn-dual-ai-pill" id="btnComposerDualAi" title="Ask Both Selected AIs with this prompt">
                 <span>🤖 Dual-AI Prompt</span>
+              </button>
+              <button type="button" class="tactile-btn-micro btn-solo-ai-pill" id="btnComposerSoloAi" title="Ask Solo AI (Gladiator 1) with this prompt">
+                <span>👤 Solo AI Prompt</span>
               </button>
               <button type="button" class="tactile-btn-micro btn-debate-pill" id="btnComposerDebate" title="Launch Colosseum AI-vs-AI Debate on this topic">
                 <span>⚔️ Colosseum Debate</span>
@@ -669,7 +678,12 @@ const firebaseConfig = {
         <div class="settings-subpanel" id="panelSettingsVisitors" style="display: none;">
           <div class="visitor-ledger-header">
             <span class="section-label">CONFIRMED VISITOR ACTIVITY LEDGER</span>
-            <span class="visitor-count-tag" id="visitorCountTag">0 Visitors</span>
+            <div style="display: flex; gap: 8px; align-items: center;">
+              <span class="visitor-count-tag" id="visitorCountTag">0 Visitors</span>
+              <button type="button" class="tactile-btn-micro btn-danger" id="btnPurgeVisitorLedger" title="Purge entire visitor ledger (Creator only)">
+                🗑️ Purge Ledger
+              </button>
+            </div>
           </div>
           <p class="section-desc">Real-time cryptographic audit log of operatives who have entered or inspected this chamber.</p>
           
@@ -773,7 +787,12 @@ const firebaseConfig = {
             <select class="tactile-select" id="selectAiModel1"></select>
           </div>
 
-          <div class="colosseum-vs-badge">VS</div>
+          <div class="colosseum-vs-wrapper">
+            <div class="colosseum-vs-badge">VS</div>
+            <button type="button" class="tactile-btn-micro btn-swap-gladiators" id="btnSwapGladiators" title="Swap / Invert Gladiators (Gladiator 1 ⇄ Gladiator 2)">
+              ⇄ Invert Roles
+            </button>
+          </div>
 
           <!-- Fighter 2 -->
           <div class="gladiator-card" id="gladiatorCard2">
@@ -861,7 +880,9 @@ const firebaseConfig = {
               <label class="section-label" for="inputVaultApiKey">PASTE API KEY</label>
               <div class="tactile-input-wrapper">
                 <input type="password" id="inputVaultApiKey" placeholder="sk-...">
-                <button type="button" class="tactile-btn-micro" id="btnSaveVaultKey" style="margin-right: 8px;">Encrypt & Save</button>
+                <button type="button" class="tactile-btn-micro" id="btnSaveVaultKey" style="margin-right: 6px;">Encrypt & Save</button>
+                <button type="button" class="tactile-btn-micro btn-danger" id="btnDeleteVaultKey" style="margin-right: 6px;" title="Wipe encrypted key for this provider">Wipe Key</button>
+                <button type="button" class="tactile-btn-micro btn-danger" id="btnPurgeAllVaultKeys" title="Purge all saved API keys across all providers">Purge All</button>
               </div>
               <span class="vault-key-status" id="vaultKeyStatusText">No custom key saved (Using Intelligent Simulation Cognition)</span>
             </div>
@@ -873,6 +894,9 @@ const firebaseConfig = {
       <div class="modal-footer modal-footer-colosseum">
         <button type="button" class="tactile-btn-pill btn-danger" id="btnStopDebate" style="display: none;">
           Stop Debate
+        </button>
+        <button type="button" class="tactile-btn-pill" id="btnResetDebate" style="display: none;">
+          🔄 Reset Arena
         </button>
         <button type="button" class="tactile-btn-pill" id="btnCancelAiColosseum">
           Close
@@ -898,9 +922,14 @@ const firebaseConfig = {
           <p id="catastropheMsg">The provided Audio Key failed cryptographic verification against this room's .cblock security token. You are completely locked out.</p>
           <div class="catastrophe-code-glitch">ERROR: 0xDEAD_ACOUSTIC_CIPHER_REJECTED</div>
         </div>
-        <button type="button" class="tactile-btn-primary btn-catastrophe" id="btnCloseCatastrophe">
-          Acknowledge Lockout
-        </button>
+        <div style="display: flex; gap: 10px; width: 100%; justify-content: center; margin-top: 14px;">
+          <button type="button" class="tactile-btn-primary btn-catastrophe" id="btnCloseCatastrophe">
+            Acknowledge Lockout
+          </button>
+          <button type="button" class="tactile-btn-pill btn-catastrophe-retry" id="btnRetryCatastrophe">
+            🔄 Emergency Retry
+          </button>
+        </div>
       </div>
     </div>
   </div>

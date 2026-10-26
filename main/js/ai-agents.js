@@ -226,8 +226,42 @@ const ChatAI = (function () {
     return await ChatCrypto.decryptApiKey(raw, cryptoKey);
   }
 
+  /**
+   * Opposite / Inverse of saveEncryptedApiKey:
+   * Remove and wipe the encrypted API key for a specific provider
+   */
+  async function removeEncryptedApiKey(provider) {
+    if (!provider) return;
+    localStorage.removeItem('cb_ai_key_' + provider);
+    return true;
+  }
+
+  /**
+   * Opposite / Inverse of all saved keys:
+   * Purge all encrypted API keys across all providers
+   */
+  async function purgeAllApiKeys() {
+    const providers = ['openai', 'anthropic', 'google', 'deepseek', 'groq', 'mistral', 'xai', 'perplexity', 'openrouter'];
+    providers.forEach((p) => localStorage.removeItem('cb_ai_key_' + p));
+    return true;
+  }
+
   function hasKeyForProvider(provider) {
     return Boolean(localStorage.getItem('cb_ai_key_' + provider));
+  }
+
+  /**
+   * Swap Gladiators (Vice-Versa): Inverts Gladiator 1 and Gladiator 2 roles
+   * Gladiator 1 becomes Gladiator 2, and Gladiator 2 becomes Gladiator 1
+   */
+  function swapGladiators() {
+    const temp = currentModel1;
+    currentModel1 = currentModel2;
+    currentModel2 = temp;
+    return {
+      model1: MODELS_REGISTRY[currentModel1],
+      model2: MODELS_REGISTRY[currentModel2],
+    };
   }
 
   /**
@@ -509,11 +543,34 @@ const ChatAI = (function () {
     }
   }
 
+  /**
+   * Opposite of Dual-Prompting: Query ONLY a single AI model (Solo Mode)
+   */
+  async function querySoloAi(modelId, promptText, cryptoKey) {
+    const targetId = modelId || currentModel1;
+    const model = MODELS_REGISTRY[targetId] || MODELS_REGISTRY['openai/gpt-4o'];
+    const messages = [
+      { role: 'system', content: 'You are an elite, perceptive intelligence agent in a covert chamber. Be compelling and sharp.' },
+      { role: 'user', content: promptText },
+    ];
+    const answer = await queryModel(targetId, messages, cryptoKey);
+    return { model, text: answer };
+  }
+
   function stopDebate() {
     isDebateActive = false;
     if (debateAbortController) {
       debateAbortController.abort();
     }
+  }
+
+  /**
+   * Opposite / Reset function for debate arena
+   */
+  function resetDebateArena() {
+    stopDebate();
+    debateAbortController = null;
+    return true;
   }
 
   return {
@@ -528,13 +585,18 @@ const ChatAI = (function () {
       model1: MODELS_REGISTRY[currentModel1],
       model2: MODELS_REGISTRY[currentModel2],
     }),
+    swapGladiators,
     saveEncryptedApiKey,
+    removeEncryptedApiKey,
+    purgeAllApiKeys,
     getDecryptedApiKey,
     hasKeyForProvider,
     queryModel,
     queryBothAis,
+    querySoloAi,
     runAiDebate,
     stopDebate,
+    resetDebateArena,
     isDebating: () => isDebateActive,
   };
 })();

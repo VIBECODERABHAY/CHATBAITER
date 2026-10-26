@@ -392,6 +392,71 @@ const ChatSync = (function () {
   }
 
   /**
+   * Opposite / Inverse of logVisitorPresence:
+   * Record when a visitor/operative leaves the chamber
+   */
+  async function logVisitorDeparture(chatCode, userName) {
+    if (!chatCode || !userName) return;
+    const departureTime = Date.now();
+    const docKey = userName.trim().toLowerCase().replace(/[^a-z0-9_-]/g, '_');
+
+    if (isFirebaseActive && firestoreDb) {
+      try {
+        await firestoreDb
+          .collection('rooms')
+          .doc(chatCode)
+          .collection('visitors')
+          .doc(docKey)
+          .set({ departedAt: departureTime, isPresent: false }, { merge: true });
+      } catch (e) {}
+    }
+
+    const local = JSON.parse(localStorage.getItem(storageKeyPrefix + chatCode) || '{}');
+    if (local.visitors && local.visitors[docKey]) {
+      local.visitors[docKey].departedAt = departureTime;
+      local.visitors[docKey].isPresent = false;
+      localStorage.setItem(storageKeyPrefix + chatCode, JSON.stringify(local));
+    }
+
+    if (broadcastChannel) {
+      broadcastChannel.postMessage({
+        type: 'VISITOR_DEPARTED',
+        chatCode,
+        userName,
+        departedAt: departureTime,
+      });
+    }
+  }
+
+  /**
+   * Opposite / Purge function for Visitor Presence Ledger:
+   * Erases all recorded visitor entries for this room (Zero-Footprint Secret Mode)
+   */
+  async function clearVisitorLedger(chatCode) {
+    if (!chatCode) return;
+    if (isFirebaseActive && firestoreDb) {
+      try {
+        const snap = await firestoreDb.collection('rooms').doc(chatCode).collection('visitors').get();
+        const batch = firestoreDb.batch();
+        snap.forEach((doc) => batch.delete(doc.ref));
+        await batch.commit();
+      } catch (e) {}
+    }
+
+    const local = JSON.parse(localStorage.getItem(storageKeyPrefix + chatCode) || '{}');
+    local.visitors = {};
+    localStorage.setItem(storageKeyPrefix + chatCode, JSON.stringify(local));
+
+    if (broadcastChannel) {
+      broadcastChannel.postMessage({
+        type: 'VISITORS_PURGED',
+        chatCode,
+      });
+    }
+    return true;
+  }
+
+  /**
    * Toggle or set the room's hash password lock status (.cblock protection)
    */
   async function setRoomHashLock(chatCode, isLocked, challengeToken = null) {
@@ -523,6 +588,70 @@ const ChatSync = (function () {
     notifyListeners(payload);
 
     return payload;
+  }
+
+  /**
+   * Opposite / Inverse of sendMessage:
+   * Delete an individual message from the room
+   */
+  async function deleteMessage(chatCode, messageId) {
+    if (!chatCode || !messageId) return;
+
+    if (isFirebaseActive && firestoreDb) {
+      try {
+        await firestoreDb
+          .collection('rooms')
+          .doc(chatCode)
+          .collection('messages')
+          .doc(messageId)
+          .delete();
+      } catch (err) {}
+    }
+
+    let room = JSON.parse(localStorage.getItem(storageKeyPrefix + chatCode) || '{}');
+    if (room.messages && room.messages[messageId]) {
+      delete room.messages[messageId];
+      localStorage.setItem(storageKeyPrefix + chatCode, JSON.stringify(room));
+    }
+
+    if (broadcastChannel) {
+      broadcastChannel.postMessage({
+        type: 'DELETE_MESSAGE',
+        chatCode,
+        messageId,
+      });
+    }
+  }
+
+  /**
+   * Opposite / Purge function for room message stream:
+   * "Burn After Reading" Chamber Purge — Erases all messages in the room
+   */
+  async function purgeRoomMessages(chatCode) {
+    if (!chatCode) return;
+
+    if (isFirebaseActive && firestoreDb) {
+      try {
+        const snap = await firestoreDb.collection('rooms').doc(chatCode).collection('messages').get();
+        const batch = firestoreDb.batch();
+        snap.forEach((doc) => batch.delete(doc.ref));
+        await batch.commit();
+      } catch (err) {}
+    }
+
+    let room = JSON.parse(localStorage.getItem(storageKeyPrefix + chatCode) || '{}');
+    room.messages = {};
+    localStorage.setItem(storageKeyPrefix + chatCode, JSON.stringify(room));
+
+    seenMessageIds.clear();
+
+    if (broadcastChannel) {
+      broadcastChannel.postMessage({
+        type: 'ROOM_PURGED',
+        chatCode,
+      });
+    }
+    return true;
   }
 
   /**
@@ -719,10 +848,14 @@ const ChatSync = (function () {
     createRoom,
     getRoom,
     logVisitorPresence,
+    logVisitorDeparture,
     getRoomVisitors,
+    clearVisitorLedger,
     setRoomHashLock,
     checkRoomLockStatus,
     sendMessage,
+    deleteMessage,
+    purgeRoomMessages,
     subscribeRoom,
     unsubscribe,
   };

@@ -36,6 +36,14 @@
       </div>
     </div>
 
+    <!-- Header Global Backend Status Badge (Always Visible & Clickable) -->
+    <div class="header-backend-anchor">
+      <button type="button" class="tactile-backend-pill" id="btnHeaderBackendPill" title="Click to view Backend & Privacy Settings">
+        <span class="backend-status-dot online" id="headerBackendDot"></span>
+        <span id="headerBackendLabel">CLOUD: LIVE</span>
+      </button>
+    </div>
+
     <!-- Active Room & Audio Status (visible once entered room) -->
     <div class="header-status-group" id="headerStatusGroup" style="display: none;">
       <div class="status-pill room-pill" id="headerRoomPill" title="Current Chat Room">
@@ -68,7 +76,15 @@
         </svg>
       </button>
 
-      <button class="tactile-btn-icon" id="btnSettingsTrigger" title="Firebase Connection Settings">
+      <button class="tactile-btn-icon btn-ai-colosseum" id="btnToggleAiColosseum" title="Dual-AI Synapse & Colosseum Debate Arena">
+        <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M12 2a4 4 0 0 1 4 4c0 1.95-1.4 3.58-3.25 3.93V14h2.5a3.5 3.5 0 0 1 3.5 3.5v2.5H5.25V17.5A3.5 3.5 0 0 1 8.75 14h2.5V9.93A4.002 4.002 0 0 1 8 6a4 4 0 0 1 4-4z"></path>
+          <line x1="9" y1="18" x2="15" y2="18"></line>
+        </svg>
+        <span class="ai-colosseum-badge-dot"></span>
+      </button>
+
+      <button class="tactile-btn-icon" id="btnSettingsTrigger" title="Room & Security Settings (Ledger & Hash Lock)">
         <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2">
           <circle cx="12" cy="12" r="3"></circle>
           <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path>
@@ -155,6 +171,32 @@
             </div>
           </div>
 
+          <!-- DYNAMIC .CBLOCK CIPHER LOCK ALERT & UPLOAD BLOCK (Fetches live on code entry) -->
+          <div class="lockfile-verification-box" id="blockLockfileUpload" style="display: none;">
+            <div class="lockfile-banner">
+              <span class="lock-shield-pulse">🛡️</span>
+              <div class="lockfile-banner-text">
+                <strong id="lockfileStatusTitle">ROOM PROTECTED BY .CBLOCK CIPHER KEY</strong>
+                <span>Creator has password-locked this room with hash encryption. Upload your <code>.cblock</code> file to verify access.</span>
+              </div>
+            </div>
+
+            <div class="tactile-file-dropzone lockfile-dropzone" id="lockfileDropZone">
+              <input type="file" id="inputLockfile" accept=".cblock" style="display: none;">
+              <div class="dropzone-inner" id="btnBrowseLockfile">
+                <svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="2">
+                  <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+                  <polyline points="17 8 12 3 7 8"></polyline>
+                  <line x1="12" y1="3" x2="12" y2="15"></line>
+                </svg>
+                <div class="dropzone-text">
+                  <span class="dropzone-title" id="lockfileDropTitle">Click to Browse or Drag .cblock Keyfile Here</span>
+                  <span class="dropzone-sub" id="lockfileDropSub">Mandatory: Will be decrypted and verified using your Audio Key</span>
+                </div>
+              </div>
+            </div>
+          </div>
+
           <!-- TACTILE CASSETTE AUDIO KEY DECK -->
           <div class="audio-deck-block">
             <div class="deck-title-row">
@@ -193,7 +235,7 @@
               <div class="cassette-info-strip">
                 <span class="rec-led" id="recLed"></span>
                 <span class="tape-timer" id="tapeTimer">00:00.0</span>
-                <span class="tape-hash" id="tapeHash">HASH: ----------------</span>
+                <span class="tape-hash" id="tapeHash">ACOUSTIC CIPHER: SEALED</span>
               </div>
             </div>
 
@@ -366,8 +408,14 @@
             <div class="toolbar-left">
               <span class="cipher-badge" id="composerCipherBadge">
                 <span class="cipher-dot"></span>
-                <span>AES-256-GCM • Ready</span>
+                <span>AES-256-GCM • SEALED</span>
               </span>
+              <button type="button" class="tactile-btn-micro btn-dual-ai-pill" id="btnComposerDualAi" title="Ask Both Selected AIs with this prompt">
+                <span>🤖 Dual-AI Prompt</span>
+              </button>
+              <button type="button" class="tactile-btn-micro btn-debate-pill" id="btnComposerDebate" title="Launch Colosseum AI-vs-AI Debate on this topic">
+                <span>⚔️ Colosseum Debate</span>
+              </button>
             </div>
             <div class="toolbar-right">
               <span class="helper-shortcut">Press <strong>Enter</strong> to transmit</span>
@@ -551,38 +599,308 @@
   </div>
 
   <!-- ============================================== -->
-  <!-- MODAL: FIREBASE / SYNC SETTINGS -->
+  <!-- MODAL: SETTINGS (BYOB BACKEND, VISITOR LEDGER, HASH LOCK) -->
   <!-- ============================================== -->
   <div class="tactile-modal-backdrop" id="settingsModal" style="display: none;">
-    <div class="tactile-modal">
+    <div class="tactile-modal modal-backend-deck">
       <div class="modal-header">
-        <h3 class="modal-title">TERMINAL DATA BACKEND</h3>
+        <div class="modal-header-titles">
+          <h3 class="modal-title" id="settingsModalHeadline">SECURITY & TERMINAL SETTINGS</h3>
+          <span class="modal-sub">DATA SOVEREIGNTY • VISITOR PRESENCE • .CBLOCK HASH LOCK</span>
+        </div>
         <button class="tactile-btn-icon" id="btnCloseSettings">✕</button>
       </div>
-      <div class="modal-body">
-        <p class="modal-desc">
-          ChatBaiter features a <strong>Zero-Config Real-Time Engine</strong>: multi-window local testing works automatically out of the box! To connect across different devices on the internet, paste your standard Firebase configuration below.
-        </p>
 
-        <div class="input-block">
-          <label class="section-label">FIREBASE CONFIGURATION (JSON or Variables)</label>
-          <textarea id="inputFirebaseConfig" rows="7" placeholder='{
-  "apiKey": "AIzaSy...",
-  "authDomain": "your-app.firebaseapp.com",
-  "databaseURL": "https://your-app-default-rtdb.firebaseio.com",
-  "projectId": "your-app",
-  "storageBucket": "your-app.appspot.com"
-}'></textarea>
-        </div>
-
-        <div class="settings-status-box" id="firebaseStatusBox">
-          <span class="status-indicator-dot online"></span>
-          <span id="firebaseStatusText">Active Mode: High-Speed Local & Tab P2P Sync</span>
-        </div>
+      <!-- Settings Sub-Tabs -->
+      <div class="settings-nav-tabs">
+        <button type="button" class="settings-nav-tab active" id="tabSettingsBackend">
+          <span>☁️ BYOB Backend</span>
+        </button>
+        <button type="button" class="settings-nav-tab" id="tabSettingsVisitors">
+          <span>👥 Visitor Ledger</span>
+        </button>
+        <button type="button" class="settings-nav-tab" id="tabSettingsHashLock">
+          <span>🛡️ Hash Password Lock</span>
+        </button>
       </div>
-      <div class="modal-footer">
-        <button class="tactile-btn-pill" id="btnResetFirebaseConfig">Reset to Local Sync</button>
-        <button class="tactile-btn-primary" id="btnSaveFirebaseConfig">Apply Configuration</button>
+
+      <div class="modal-body">
+        
+        <!-- PANEL 1: BYOB FIREBASE BACKEND -->
+        <div class="settings-subpanel" id="panelSettingsBackend">
+          <div class="byob-notice">
+            <div class="byob-shield">🛡️</div>
+            <div class="byob-text">
+              <strong>100% Private Data Sovereignty</strong>
+              <p>Paste your own Firebase configuration below. Your encrypted messages, room codes, and timestamps will go <em>strictly to your own private Google Cloud project</em>, completely bypassing the server author.</p>
+            </div>
+          </div>
+
+          <div class="input-block">
+            <div class="section-label-row">
+              <label class="section-label" for="inputFirebaseConfig">FIREBASE SNIPPET OR JSON</label>
+              <span class="format-hint">Accepts standard JSON or <code>const firebaseConfig = { ... }</code></span>
+            </div>
+            <textarea id="inputFirebaseConfig" rows="6" placeholder='Paste your Firebase config snippet:
+const firebaseConfig = {
+  apiKey: "AIzaSy...",
+  authDomain: "your-project.firebaseapp.com",
+  projectId: "your-project",
+  storageBucket: "your-project.firebasestorage.app"
+};'></textarea>
+          </div>
+
+          <!-- Connection Test Result Strip -->
+          <div class="connection-test-strip" id="connectionTestStrip" style="display: none;">
+            <span class="test-icon" id="testIcon">✓</span>
+            <span class="test-msg" id="testMsg">Connection verified.</span>
+          </div>
+
+          <div class="settings-status-box" id="firebaseStatusBox">
+            <span class="status-indicator-dot online" id="statusDot"></span>
+            <div class="status-box-content">
+              <strong id="firebaseStatusText">Active Mode: Live Cloud Firestore Connected</strong>
+              <span id="firebaseStatusSub">Project: chatbaiter • Encrypted Cloud Sync</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- PANEL 2: VISITOR PRESENCE LEDGER -->
+        <div class="settings-subpanel" id="panelSettingsVisitors" style="display: none;">
+          <div class="visitor-ledger-header">
+            <span class="section-label">CONFIRMED VISITOR ACTIVITY LEDGER</span>
+            <span class="visitor-count-tag" id="visitorCountTag">0 Visitors</span>
+          </div>
+          <p class="section-desc">Real-time cryptographic audit log of operatives who have entered or inspected this chamber.</p>
+          
+          <div class="visitor-ledger-scroll" id="visitorLedgerList">
+            <div class="empty-ledger-state">
+              <span>Auditing room presence...</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- PANEL 3: HASH PASSWORD LOCK (.CBLOCK FILE ENCRYPTION) -->
+        <div class="settings-subpanel" id="panelSettingsHashLock" style="display: none;">
+          <div class="hash-lock-card">
+            <div class="hash-lock-toggle-row">
+              <div class="hash-lock-titles">
+                <strong class="hash-lock-title">LOCK CHAT WITH HASH</strong>
+                <span class="hash-lock-subtitle">Generates an encrypted <code>.cblock</code> password file bound to your Audio Key</span>
+              </div>
+              
+              <!-- Skeuomorphic Animated Toggle Switch -->
+              <label class="tactile-switch">
+                <input type="checkbox" id="toggleLockChatWithHash">
+                <span class="switch-slider"></span>
+              </label>
+            </div>
+
+            <p class="section-desc" style="margin-top: 10px;">
+              When enabled, anyone joining this room MUST upload the matching <code>.cblock</code> keyfile AND possess your matching audio key. The app attempts decryption on-the-fly: if matched, access granted; if mismatched, entry is catastrophically locked down.
+            </p>
+
+            <!-- Active Keyfile Download & Status Box -->
+            <div class="hash-lock-active-box" id="hashLockActiveBox" style="display: none;">
+              <div class="active-lock-pill">
+                <span class="lock-pulse-dot"></span>
+                <span>ROOM IS SEALED WITH .CBLOCK CIPHER</span>
+              </div>
+              <div class="lock-action-buttons">
+                <button type="button" class="tactile-btn-pill" id="btnDownloadLockKeyfile">
+                  <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+                    <polyline points="7 10 12 15 17 10"></polyline>
+                    <line x1="12" y1="15" x2="12" y2="3"></line>
+                  </svg>
+                  <span>Download .cblock Keyfile</span>
+                </button>
+              </div>
+              <span class="label-hint">Share this <code>.cblock</code> file only with your trusted friend along with the audio file.</span>
+            </div>
+          </div>
+        </div>
+
+      </div>
+
+      <div class="modal-footer modal-footer-byob" id="settingsModalFooter">
+        <button type="button" class="tactile-btn-pill" id="btnTestFirebasePing" title="Ping and verify this configuration before saving">
+          <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2">
+            <polyline points="22 12 18 12 15 21 9 3 6 12 2 12"></polyline>
+          </svg>
+          <span id="testBtnLabel">Test Connection</span>
+        </button>
+
+        <button type="button" class="tactile-btn-pill" id="btnRevertServerDefault" title="Revert to server default configuration">
+          Use Default
+        </button>
+
+        <button type="button" class="tactile-btn-pill" id="btnOfflineSync" title="Disconnect and use local offline peer-to-peer sync">
+          Offline P2P
+        </button>
+
+        <button type="button" class="tactile-btn-primary" id="btnSaveFirebaseConfig">
+          Save & Connect
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ============================================== -->
+  <!-- MODAL: DUAL-AI SYNAPSE & COLOSSEUM DEBATE ARENA -->
+  <!-- ============================================== -->
+  <div class="tactile-modal-backdrop" id="aiColosseumModal" style="display: none;">
+    <div class="tactile-modal modal-colosseum-deck">
+      <div class="modal-header">
+        <div class="modal-header-titles">
+          <h3 class="modal-title">DUAL-AI SYNAPSE & COLOSSEUM DEBATE</h3>
+          <span class="modal-sub">SELECT 2 FRONTIER AIS • ENCRYPTED KEYS • PARALLEL PROMPTING & DEBATES</span>
+        </div>
+        <button class="tactile-btn-icon" id="btnCloseAiColosseum">✕</button>
+      </div>
+
+      <div class="modal-body">
+        
+        <!-- Dual Model Selection Deck -->
+        <div class="colosseum-gladiators-grid">
+          <!-- Fighter 1 -->
+          <div class="gladiator-card" id="gladiatorCard1">
+            <div class="gladiator-header">
+              <span class="gladiator-tag gladiator-1">GLADIATOR 1 (PROPOSITION)</span>
+              <span class="gladiator-badge" id="badgeModel1">GPT-4o</span>
+            </div>
+            <label class="section-label">CHOOSE AI MODEL 1</label>
+            <select class="tactile-select" id="selectAiModel1"></select>
+          </div>
+
+          <div class="colosseum-vs-badge">VS</div>
+
+          <!-- Fighter 2 -->
+          <div class="gladiator-card" id="gladiatorCard2">
+            <div class="gladiator-header">
+              <span class="gladiator-tag gladiator-2">GLADIATOR 2 (OPPOSITION)</span>
+              <span class="gladiator-badge" id="badgeModel2">Claude 3.5</span>
+            </div>
+            <label class="section-label">CHOOSE AI MODEL 2</label>
+            <select class="tactile-select" id="selectAiModel2"></select>
+          </div>
+        </div>
+
+        <!-- Colosseum Action Modes Tabs -->
+        <div class="key-option-tabs" style="margin-top: 10px;">
+          <button type="button" class="key-tab-btn active" id="tabColosseumDebate">
+            <span class="tab-icon">⚔️</span>
+            <span>AI Colosseum Debate</span>
+          </button>
+          <button type="button" class="key-tab-btn" id="tabColosseumVault">
+            <span class="tab-icon">🔐</span>
+            <span>Encrypted API Key Vault</span>
+          </button>
+        </div>
+
+        <!-- Panel 1: Debate Arena -->
+        <div class="colosseum-panel" id="panelColosseumDebate">
+          <div class="input-block">
+            <label class="section-label" for="inputDebateTopic">DEBATE TOPIC OR PROMPT</label>
+            <div class="tactile-input-wrapper">
+              <input type="text" id="inputDebateTopic" placeholder="e.g. Will AGI achieve superintelligence before human bio-convergence?">
+            </div>
+          </div>
+
+          <div class="debate-options-row">
+            <div class="debate-rounds-block">
+              <label class="section-label">DEBATE EXCHANGES</label>
+              <select class="tactile-select-sm" id="selectDebateRounds">
+                <option value="1">1 Round (Opening + Rebuttal)</option>
+                <option value="2" selected>2 Rounds (Opening, Rebuttals & Final Synthesis)</option>
+                <option value="3">3 Rounds (Deep Extended Clash)</option>
+              </select>
+            </div>
+            <div class="debate-auto-broadcast">
+              <label class="tactile-checkbox-label">
+                <input type="checkbox" id="checkBroadcastDebate" checked>
+                <span>Broadcast Debate Live into Room Chat</span>
+              </label>
+            </div>
+          </div>
+
+          <!-- Live Debate Progress Banner -->
+          <div class="debate-status-banner" id="debateStatusBanner" style="display: none;">
+            <span class="debate-spinner">⚔️</span>
+            <span id="debateStatusText">Gladiators reasoning...</span>
+          </div>
+        </div>
+
+        <!-- Panel 2: Encrypted Key Vault -->
+        <div class="colosseum-panel" id="panelColosseumVault" style="display: none;">
+          <div class="byob-notice" style="border-color: rgba(6, 182, 212, 0.3); background: rgba(6, 182, 212, 0.05);">
+            <div class="byob-shield">🔒</div>
+            <div class="byob-text">
+              <strong style="color: var(--accent-cyan);">Acoustic-Sealed API Key Security</strong>
+              <p>Your API keys are encrypted using your active audio key before storing in localStorage. If the audio cassette is ejected, your keys become undecipherable random ciphertext.</p>
+            </div>
+          </div>
+
+          <div class="vault-inputs-grid">
+            <div class="input-block">
+              <label class="section-label" for="selectVaultProvider">TARGET AI PROVIDER</label>
+              <select class="tactile-select" id="selectVaultProvider">
+                <option value="openai">OpenAI (GPT-4o, o1-mini)</option>
+                <option value="anthropic">Anthropic (Claude 3.5 Sonnet / Haiku)</option>
+                <option value="google">Google DeepMind (Gemini 1.5 Pro / Flash)</option>
+                <option value="deepseek">DeepSeek (V3, Reasoner R1)</option>
+                <option value="groq">Groq LPU (Llama 3.3 70B, Mixtral)</option>
+                <option value="mistral">Mistral AI (Mistral Large 2)</option>
+                <option value="xai">xAI (Grok 2)</option>
+                <option value="perplexity">Perplexity (Sonar)</option>
+                <option value="openrouter">OpenRouter (Universal All-in-One)</option>
+              </select>
+            </div>
+
+            <div class="input-block">
+              <label class="section-label" for="inputVaultApiKey">PASTE API KEY</label>
+              <div class="tactile-input-wrapper">
+                <input type="password" id="inputVaultApiKey" placeholder="sk-...">
+                <button type="button" class="tactile-btn-micro" id="btnSaveVaultKey" style="margin-right: 8px;">Encrypt & Save</button>
+              </div>
+              <span class="vault-key-status" id="vaultKeyStatusText">No custom key saved (Using Intelligent Simulation Cognition)</span>
+            </div>
+          </div>
+        </div>
+
+      </div>
+
+      <div class="modal-footer modal-footer-colosseum">
+        <button type="button" class="tactile-btn-pill btn-danger" id="btnStopDebate" style="display: none;">
+          Stop Debate
+        </button>
+        <button type="button" class="tactile-btn-pill" id="btnCancelAiColosseum">
+          Close
+        </button>
+        <button type="button" class="tactile-btn-primary" id="btnStartDebate">
+          ⚔️ Launch AI Colosseum Debate
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ============================================== -->
+  <!-- MODAL: CATASTROPHE LOCKOUT ALERT (WRONG KEYFILE) -->
+  <!-- ============================================== -->
+  <div class="tactile-modal-backdrop" id="catastropheModal" style="display: none;">
+    <div class="tactile-modal modal-catastrophe-deck">
+      <div class="catastrophe-glitch-border"></div>
+      <div class="catastrophe-body">
+        <div class="catastrophe-hazard-pulse">☠️</div>
+        <h2 class="catastrophe-title">AUTHENTICATION CATASTROPHE</h2>
+        <span class="catastrophe-sub">CRITICAL DECRYPTION REJECTION • ACCESS DENIED</span>
+        <div class="catastrophe-box">
+          <p id="catastropheMsg">The provided Audio Key failed cryptographic verification against this room's .cblock security token. You are completely locked out.</p>
+          <div class="catastrophe-code-glitch">ERROR: 0xDEAD_ACOUSTIC_CIPHER_REJECTED</div>
+        </div>
+        <button type="button" class="tactile-btn-primary btn-catastrophe" id="btnCloseCatastrophe">
+          Acknowledge Lockout
+        </button>
       </div>
     </div>
   </div>
@@ -594,6 +912,7 @@
   <script src="js/crypto.js"></script>
   <script src="js/audio.js"></script>
   <script src="js/firebase-sync.js"></script>
+  <script src="js/ai-agents.js"></script>
   <script src="js/app.js"></script>
 </body>
 </html>

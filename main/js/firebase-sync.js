@@ -235,6 +235,44 @@ const ChatSync = (function () {
   }
 
   /**
+   * Permanently delete and wipe API configuration from the server
+   */
+  async function deleteApiConfigFromServer() {
+    try {
+      const res = await fetch('/api/config', { method: 'DELETE' });
+      const data = await res.json();
+      envLoadedConfig = null;
+      localStorage.removeItem('cb_firebase_config');
+      await disconnectToOffline();
+      return data;
+    } catch (err) {
+      console.error('Failed to delete API from server:', err);
+      throw err;
+    }
+  }
+
+  /**
+   * Save API configuration to the server
+   */
+  async function saveApiConfigToServer(configObj) {
+    try {
+      const res = await fetch('/api/config', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(configObj),
+      });
+      const data = await res.json();
+      if (data.success && data.config) {
+        envLoadedConfig = data.config;
+      }
+      return data;
+    } catch (err) {
+      console.error('Failed to save API to server:', err);
+      throw err;
+    }
+  }
+
+  /**
    * Initialize Firebase SDK with clean instance recreation
    */
   async function initFirebase(config) {
@@ -841,6 +879,8 @@ const ChatSync = (function () {
     disconnectToOffline,
     getBackendInfo,
     fetchEnvConfig,
+    deleteApiConfigFromServer,
+    saveApiConfigToServer,
     parseFirebaseConfigInput,
     testFirebaseConnection,
     isEnvConfigured: () => Boolean(envLoadedConfig),

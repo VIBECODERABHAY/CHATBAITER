@@ -138,6 +138,7 @@
     testBtnLabel: document.getElementById('testBtnLabel'),
     btnRevertServerDefault: document.getElementById('btnRevertServerDefault'),
     btnOfflineSync: document.getElementById('btnOfflineSync'),
+    btnDeleteServerApi: document.getElementById('btnDeleteServerApi'),
     btnSaveFirebaseConfig: document.getElementById('btnSaveFirebaseConfig'),
     visitorLedgerList: document.getElementById('visitorLedgerList'),
     visitorCountTag: document.getElementById('visitorCountTag'),
@@ -386,6 +387,7 @@
     el.btnSaveFirebaseConfig.addEventListener('click', handleSaveFirebaseConfig);
     el.btnRevertServerDefault.addEventListener('click', handleRevertServerDefault);
     el.btnOfflineSync.addEventListener('click', handleOfflineSync);
+    if (el.btnDeleteServerApi) el.btnDeleteServerApi.addEventListener('click', handleDeleteServerApi);
 
     // AI Colosseum Modal
     if (el.btnCloseAiColosseum) el.btnCloseAiColosseum.addEventListener('click', closeAiColosseumModal);
@@ -1644,6 +1646,28 @@
     updateBackendStatusUi();
     showToast('Offline Mode: Zero Cloud Connections. Local Multi-Tab active.', 'info');
     setTimeout(closeSettingsModal, 300);
+  }
+
+  async function handleDeleteServerApi() {
+    const confirmed = window.confirm(
+      '⚠️ PERMANENT SERVER DELETION:\n\nAre you sure you want to permanently delete and wipe all API credentials from the server? This cannot be undone.'
+    );
+    if (!confirmed) return;
+
+    showToast('Permanently deleting API credentials from server...', 'info');
+    showTestResult('testing', 'Wiping and zeroizing API credentials from server...');
+
+    try {
+      await ChatSync.deleteApiConfigFromServer();
+      updateBackendStatusUi();
+      showTestResult('success', 'API credentials permanently erased and zeroized from server.');
+      showToast('API credentials permanently eradicated from server! Zero traces left.', 'success');
+      el.inputFirebaseConfig.value =
+        '// API credentials have been permanently deleted from this server.\n// Zero server footprint active.';
+    } catch (err) {
+      showTestResult('error', 'Failed to delete from server: ' + err.message);
+      showToast('Server deletion error: ' + err.message, 'error');
+    }
   }
 
   /* ======================================================== */
